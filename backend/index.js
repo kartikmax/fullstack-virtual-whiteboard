@@ -1,13 +1,24 @@
-import express from 'express';
-import { createServer } from 'node:http';
+const express = require('express')
+const http = require('http')
+const app = express()
+const server = http.createServer(app)
 
-const app = express();
-const server = createServer(app);
+import { Server } from 'socket.io'
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>');
-});
+const io= new Server(server,{
+  cors:{
+    origin:'*'
+  }
+})
 
-server.listen(3000, () => {
-  console.log('server running at http://localhost:3000');
-});
+
+io.on('connection',(socket)=>{
+  console.log('connection')
+  socket.on('draw-line',({prevPoint,currentPoint,color})=>{
+    socket.broadcast.emit('draw-line',{prevPoint,currentPoint,color})
+  })
+})
+
+server.listen(3001,()=>{
+  console.log('server is listening on 3001')
+})
